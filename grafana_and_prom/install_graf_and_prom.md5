@@ -1,1 +1,50 @@
 Установка и настройка графаны и прометеуса
+
+Идем на фицииальную страницу репы прометея https://github.com/prometheus/prometheus/releases/ и оттуда стаскиваем
+
+wget https://github.com/prometheus/prometheus/releases/download/v2.37.1/prometheus-2.37.1.linux-amd64.tar.gz
+
+tar -xvf prometheus-2.37.1.linux-amd64.tar.gz
+
+cp prometheus-2.37.1.linux-amd64/prometheus /usr/bin
+
+mkdir /etc/prometheus
+
+cp -r /root/prometheus-2.37.1.linux-amd64/consoles /etc/prometheus/
+
+cp -r /root/prometheus-2.37.1.linux-amd64/console_libraries /etc/prometheus/
+
+vi /etc/prometheus/prometheus.yml
+
+useradd --no-create-home --shell /bin/false prometheus
+
+systemctl edit --full --force prometheus.service
+
+sudo systemctl start prometheus
+
+Проверяем веб-интерфейс:
+http://158.160.2.220:9090/
+
+Чтобы убедится, что сбор данных для сервиса prometheus работает откройте меню Status -> Targets. Здесь должна отображаться одна цель prometheus:
+
+Спустя некоторое время можно попытаться построить график из собранных данных. Для этого вернитесь на главную страницу и в строке Expression наберите
+go_memstats_frees_total. Затем перейдите на вкладку Graph:
+
+Установка графаны:
+sudo apt-get install -y apt-transport-https
+sudo apt-get install -y software-properties-common wget
+sudo wget -q -O /usr/share/keyrings/grafana.key https://packages.grafana.com/gpg.key
+echo "deb [signed-by=/usr/share/keyrings/grafana.key] https://packages.grafana.com/oss/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
+echo "deb [signed-by=/usr/share/keyrings/grafana.key] https://packages.grafana.com/oss/deb beta main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
+sudo apt-get update
+apt install grafana
+--тут нужно будет обратить внимание на pemissions для юзера графана
+chown -R  grafana:grafana /usr/share/grafana
+chown -R  grafana:grafana /var/log/grafana/
+chown -R  grafana:grafana /var/log/grafana
+chown -R  grafana:grafana /var/lib/grafana
+chown -R  grafana:grafana /etc/grafana
+
+systemctl daemon-reload
+
+Далее импортируем дашборд для прометея в веб-интефейсе на 3000 прометеуса
